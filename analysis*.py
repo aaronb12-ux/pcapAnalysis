@@ -30,8 +30,8 @@ with open('google_pings.pcap', 'rb') as f:
                     ping_count += 1
                     destination_ip = socket.inet_ntoa(ip.dst) #destination IP address
                     
-print("Question 1:", ping_count)
-print("Question 2:", destination_ip)
+print("Q1:", ping_count)
+print("Q2:", destination_ip)
 
 #Questions 3 - 5
 http_count = 0
@@ -76,9 +76,9 @@ for ipAdress in dstIpAdressCount:
         maxDstIpAdress = dstIpAdressCount[ipAdress]
         bestipAdress = ipAdress
 
-print("Question 3:", http_count)
-print("Question 4:", https_count)
-print("Question 5:", bestipAdress)
+print("Q3:", https_count)
+print("Q4:", http_count)
+print("Q5:", bestipAdress)
 
 
 http_count_forever = 0
@@ -105,10 +105,11 @@ with open('http_forever.pcap', 'rb') as f:
                   elif tcp.sport == 443 or tcp.dport == 443:
                     https_count_forever += 1
 
-print("Question 6:", http_count_forever)
-print("Question 7:", https_count_forever)
+print("Q6:", http_count_forever)
+print("Q7:", https_count_forever)
           
-          
+
+ftpControlPackets = 0
 with open('ftp.pcap', 'rb') as f:
 
     pcap = dpkt.pcap.Reader(f)
@@ -127,12 +128,54 @@ with open('ftp.pcap', 'rb') as f:
 
                 if tcp.sport == 21:
                     ipAdd = socket.inet_ntoa(ip.src)
+                    ftpControlPackets += 1
                 
                 elif tcp.dport == 21:
                     ipAdd = socket.inet_ntoa(ip.dst)
+                    ftpControlPackets += 1
         
 
-print("Question 8:", ipAdd)
+print("Q8:", ipAdd)
+print("Q9:", ftpControlPackets)
+
+
+totalPakcets = 0
+httpsPackets = 0
+uniqueDst = 0
+with open("tmz.pcap", "rb") as f:
+
+    pcap = dpkt.pcap.Reader(f)
+    dstAddresses = set()
+
+    for timestamp, buf in pcap:
+
+        totalPakcets += 1
+
+        eth = dpkt.ethernet.Ethernet(buf)
+
+        if isinstance(eth.data, dpkt.ip.IP):
+
+            ip = eth.data
+            raw_dst = ip.dst
+            readable_dst = socket.inet_ntoa(raw_dst) #destination IP address
+
+            if readable_dst not in dstAddresses:
+                uniqueDst += 1
+                dstAddresses.add(readable_dst)
+
+            if isinstance(ip.data, dpkt.tcp.TCP):
+
+                tcp = ip.data
+
+                if tcp.sport == 443 or tcp.dport == 443:
+                    httpsPackets += 1
+                  
+
+
+print("Q10:", totalPakcets)
+print("Q11:", httpsPackets)
+print("Q12:", uniqueDst)
+
 
 '''
 parsing PCAP file: https://jon.oberheide.org/blog/2008/10/15/dpkt-tutorial-2-parsing-a-pcap-file/
